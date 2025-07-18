@@ -2426,7 +2426,107 @@ button, .gemini-link-button {
                 }
             }
             // --- END Quick Notes Functions ---
+            function() {
+        // Define an array to hold recently viewed cards and a maximum limit
+        let recentlyViewedCards = [];
+        const MAX_RECENTLY_VIEWED = 5; // You can adjust this number
 
+        // Get DOM elements
+        const recentlyViewedList = document.getElementById('recentlyViewedList');
+        const clearRecentlyViewedBtn = document.getElementById('clearRecentlyViewedBtn');
+        const noContentMessage = recentlyViewedList ? recentlyViewedList.querySelector('.no-content-message') : null;
+
+        // Function to save cards to localStorage
+        function saveRecentlyViewedCards() {
+            try {
+                localStorage.setItem('recentlyViewedCards', JSON.stringify(recentlyViewedCards));
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
+                // Handle cases where localStorage might be full or unavailable (e.g., in some privacy modes)
+            }
+        }
+
+        // Function to load cards from localStorage
+        function loadRecentlyViewedCards() {
+            try {
+                const storedCards = localStorage.getItem('recentlyViewedCards');
+                if (storedCards) {
+                    recentlyViewedCards = JSON.parse(storedCards);
+                }
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                // Clear potentially corrupted data if parsing fails
+                localStorage.removeItem('recentlyViewedCards');
+                recentlyViewedCards = [];
+            }
+        }
+
+        // Function to render cards to the DOM
+        function renderRecentlyViewedCards() {
+            if (!recentlyViewedList) return;
+
+            recentlyViewedList.innerHTML = ''; // Clear existing list items
+
+            if (recentlyViewedCards.length === 0) {
+                const messageItem = document.createElement('li');
+                messageItem.classList.add('no-content-message');
+                messageItem.textContent = 'No recently viewed cards yet. Click on any Guru card to add it here!';
+                recentlyViewedList.appendChild(messageItem);
+            } else {
+                recentlyViewedCards.forEach(card => {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = card.url;
+                    link.textContent = card.title;
+                    link.target = '_blank'; // Open in new tab
+                    listItem.appendChild(link);
+                    recentlyViewedList.appendChild(listItem);
+                });
+            }
+        }
+
+        // Function to add a new card to the recently viewed list
+        function addRecentlyViewedCard(cardTitle, cardUrl) {
+            // Remove if already exists to move it to the top
+            recentlyViewedCards = recentlyViewedCards.filter(card => card.url !== cardUrl);
+
+            // Add new card to the beginning of the array
+            recentlyViewedCards.unshift({ title: cardTitle, url: cardUrl });
+
+            // Trim the array if it exceeds the maximum limit
+            if (recentlyViewedCards.length > MAX_RECENTLY_VIEWED) {
+                recentlyViewedCards = recentlyViewedCards.slice(0, MAX_RECENTLY_VIEWED);
+            }
+
+            saveRecentlyViewedCards();
+            renderRecentlyViewedCards();
+        }
+
+        // Event listener for Guru card links
+        // We need to delegate the event or attach it to all relevant links
+        document.addEventListener('click', function(event) {
+            // Check if the clicked element is an anchor tag and its href starts with app.getguru.com/card
+            if (event.target.tagName === 'A' && event.target.href.startsWith('https://app.getguru.com/card/')) {
+                const cardTitle = event.target.textContent;
+                const cardUrl = event.target.href;
+                addRecentlyViewedCard(cardTitle, cardUrl);
+            }
+        });
+
+        // Event listener for the "Clear History" button
+        if (clearRecentlyViewedBtn) {
+            clearRecentlyViewedBtn.addEventListener('click', function() {
+                recentlyViewedCards = []; // Clear the array
+                saveRecentlyViewedCards(); // Save the empty array
+                renderRecentlyViewedCards(); // Update the DOM
+            });
+        }
+
+        // Initial load: Load cards and render them when the DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRecentlyViewedCards();
+            renderRecentlyViewedCards();
+        });
             // --- Break Reminder Functions (Time-based) ---
             const BREAK_REMINDER_KEY = 'guruBreakReminderTime';
             let breakReminderTimeout = null;
