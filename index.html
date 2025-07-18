@@ -2497,6 +2497,7 @@ button, .gemini-link-button {
                         playBreakSound();
                         reminderStatus.textContent = 'Time for a break!';
                         localStorage.removeItem(BREAK_REMINDER_KEY); // Clear reminder after it fires
+                        showNotification("Time for a Break!", "Your break time has arrived."); 
                     }, timeToWait);
 
                     localStorage.setItem(BREAK_REMINDER_KEY, selectedTime);
@@ -2506,7 +2507,7 @@ button, .gemini-link-button {
                 // --- NEW: Send System Notification ---
 if (Notification.permission === "granted") {
     new Notification("Time for a Break!", {
-        body: "Your scheduled break is now!",
+        body: "Your break is scheduled!",
         icon: "https://placehold.co/32x32/007bff/ffffff?text=G" // Use your favicon or another appropriate icon
     });
 } else if (Notification.permission === "default") {
