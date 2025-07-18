@@ -2493,12 +2493,13 @@ button, .gemini-link-button {
                 if (timeToWait > 0) {
                     reminderStatus.textContent = `Reminder set for ${selectedTime}.`;
                     breakReminderTimeout = setTimeout(() => {
-                        showBreakReminderModal();
-                        playBreakSound();
-                        reminderStatus.textContent = 'Time for a break!';
-                        localStorage.removeItem(BREAK_REMINDER_KEY); // Clear reminder after it fires
-                        showNotification("Time for a Break!", "Your break time has arrived."); 
-                    }, timeToWait);
+            playBreakSound();
+            const breakReminderModal = document.getElementById('breakReminderModal');
+            breakReminderModal.style.display = 'block'; // Show the modal
+            document.getElementById('breakReminderStatus').textContent = "Break time!";
+            // ADD THIS LINE TO SHOW A SYSTEM NOTIFICATION WHEN BREAK TIME COMES
+            showNotification("Time for a Break!", "Your break time has arrived."); //
+        }, timeToBreak);
 
                     localStorage.setItem(BREAK_REMINDER_KEY, selectedTime);
                 } else {
