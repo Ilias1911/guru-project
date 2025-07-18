@@ -2464,56 +2464,48 @@ button, .gemini-link-button {
         });
     }
 }
+            function showNotification(title, body) {
+    if (Notification.permission === "granted") {
+        new Notification(title, {
+            body: body,
+            icon: "https://placehold.co/32x32/007bff/ffffff?text=G" // Μπορείτε να αλλάξετε το εικονίδιο
+        });
+    }
+}
             async function setBreakReminder() {
-                await initAudio(); // Ensure audio context is ready
-                cancelBreakReminder(); // Clear any existing reminder
-
-                const timeInput = document.getElementById('breakTimeInput');
-                const reminderStatus = document.getElementById('breakReminderStatus');
-                const selectedTime = timeInput.value;
-
-                if (!selectedTime) {
-                    reminderStatus.textContent = 'Please select a time.';
-                    return;
-                }
-
-                const now = new Date();
-                const [hours, minutes] = selectedTime.split(':').map(Number);
-
-                const reminderTime = new Date();
-                reminderTime.setHours(hours, minutes, 0, 0);
-
-                // If the reminder time is in the past, set it for the next day
-                if (reminderTime.getTime() < now.getTime()) {
-                    reminderTime.setDate(reminderTime.getDate() + 1);
-                }
-
-                const timeToWait = reminderTime.getTime() - now.getTime();
-
-                if (timeToWait > 0) {
-                    reminderStatus.textContent = `Reminder set for ${selectedTime}.`;
-                    breakReminderTimeout = setTimeout(() => {
+    await initAudio(); // Ensure audio context is ready
+    cancelBreakReminder(); // Clear any existing reminder
+    const timeInput = document.getElementById('breakTimeInput');
+    const reminderStatus = document.getElementById('breakReminderStatus');
+    const selectedTime = timeInput.value;
+    if (!selectedTime) {
+        reminderStatus.textContent = 'Please select a time.';
+        return;
+    }
+    const now = new Date();
+    const [hours, minutes] = selectedTime.split(':').map(Number);
+    const reminderTime = new Date();
+    reminderTime.setHours(hours, minutes, 0, 0);
+    if (reminderTime.getTime() < now.getTime()) {
+        reminderTime.setDate(reminderTime.getDate() + 1);
+    }
+    const timeToWait = reminderTime.getTime() - now.getTime();
+    if (timeToWait > 0) {
+        reminderStatus.textContent = `Reminder set for ${selectedTime}.`;
+        breakReminderTimeout = setTimeout(() => {
             playBreakSound();
             const breakReminderModal = document.getElementById('breakReminderModal');
-            breakReminderModal.style.display = 'block'; // Show the modal
+            breakReminderModal.style.display = 'block';
             document.getElementById('breakReminderStatus').textContent = "Break time!";
-            // ADD THIS LINE TO SHOW A SYSTEM NOTIFICATION WHEN BREAK TIME COMES
-            showNotification("Time for a Break!", "Your break time has arrived."); //
-        }, timeToBreak);
-
-                    localStorage.setItem(BREAK_REMINDER_KEY, selectedTime);
-                } else {
-                    reminderStatus.textContent = 'Invalid time. Please select a future time.';
-                }
-                // --- NEW: Send System Notification ---
-if (Notification.permission === "granted") {
-    new Notification("Time for a Break!", {
-        body: "Your break is scheduled!",
-        icon: "https://placehold.co/32x32/007bff/ffffff?text=G" // Use your favicon or another appropriate icon
-    });
-} else if (Notification.permission === "default") {
-    // If permission was not requested or denied, try to request it again
-    requestNotificationPermission();
+            showNotification("Time for a Break!", "Your break time has arrived.");
+        }, timeToWait);
+        localStorage.setItem(BREAK_REMINDER_KEY, selectedTime);
+    } else {
+        reminderStatus.textContent = 'Invalid time. Please select a future time.';
+    }
+    if (Notification.permission === "default") {
+        requestNotificationPermission();
+    }
 }
 // --- END NEW CODE ---
             }
