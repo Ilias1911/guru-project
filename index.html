@@ -2489,7 +2489,7 @@ button, .gemini-link-button {
     if (reminderTime.getTime() < now.getTime()) {
         reminderTime.setDate(reminderTime.getDate() + 1);
     }
-    const timeToWait = reminderTime.getTime() - now.getTime();
+    const timeToWait = reminderTime.getTime() - now.getTime(); // Αφαιρέθηκε το διπλό ';'
     if (timeToWait > 0) {
         reminderStatus.textContent = `Reminder set for ${selectedTime}.`;
         breakReminderTimeout = setTimeout(() => {
@@ -2507,8 +2507,6 @@ button, .gemini-link-button {
         requestNotificationPermission();
     }
 }
-// --- END NEW CODE ---
-            }
 
             function cancelBreakReminder() {
                 if (breakReminderTimeout) {
